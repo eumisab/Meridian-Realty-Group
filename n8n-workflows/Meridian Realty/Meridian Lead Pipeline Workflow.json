@@ -1,0 +1,461 @@
+{
+  "name": "Meridian Lead Pipeline Workflow",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "46d5a528-342a-4aef-9fb4-740258910574",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "3814db25-cdcf-4b55-bae8-8cdd35bff26a",
+      "name": "Webhook",
+      "webhookId": "46d5a528-342a-4aef-9fb4-740258910574"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "71beaeb8-b4d0-4903-b260-419fd65b9833",
+              "name": "Full name",
+              "value": "={{ \n  ($json.body.data.fields.find(f => f.label === \"First name\")?.value || \"\") + \" \" + \n  ($json.body.data.fields.find(f => f.label === \"Last name\")?.value || \"\") \n}}",
+              "type": "string"
+            },
+            {
+              "id": "1b45bb23-df5e-4614-aeaa-3b1191bcf8f5",
+              "name": "Email",
+              "value": "={{$json.body.data.fields.find(f => f.label === \"Email\")?.value || \"\" }}",
+              "type": "string"
+            },
+            {
+              "id": "bd82bc06-9708-4d58-b2ee-3bceb6a9d4ac",
+              "name": "Phone",
+              "value": "={{$json.body.data.fields.find(f => f.label === \"Phone number\")?.value || \"\" }}",
+              "type": "string"
+            },
+            {
+              "id": "7249bd46-75b3-492a-b17b-5c493f2b2fac",
+              "name": "Job title",
+              "value": "={{ $json.body.data.fields.find(f => f.label === \"Job title\")?.value || \"\" }}",
+              "type": "string"
+            },
+            {
+              "id": "4303fb55-b3cd-4ac3-b5ec-e663d3fbfa05",
+              "name": "Company name",
+              "value": "={{$json.body.data.fields.find(f => f.label === \"Company name\")?.value || \"\" }}",
+              "type": "string"
+            },
+            {
+              "id": "ddaf7eed-d05c-40ff-8d29-cc5fae435fa7",
+              "name": "Company size",
+              "value": "={{$json.body.data.fields.find(f => f.label === \"Company size\")?.value || \"\" }}",
+              "type": "string"
+            },
+            {
+              "id": "7361ecb3-7bb2-44ee-86e9-ec87dd623429",
+              "name": "Message",
+              "value": "={{$json.body.data.fields.find(f => f.label === \"What are you looking for?\")?.value || \"\" }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        224,
+        0
+      ],
+      "id": "bcedd9c7-690c-46e5-a25e-cfe2fdf845f9",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Classify this real estate lead into exactly one category:\nHot Lead, Warm Lead. or Just Browsing.\n\nRules:\n- Hot Lead: pre-approved, ASAP, immediate, ready to buy soon.\n- Warm Lead: interested but no urgency yet.\n- Just Browsing: casual, early-stage, no urgency.\n\nLead message: {{ $json.Message }}\n\nReturn only the category.",
+        "batching": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.9,
+      "position": [
+        448,
+        0
+      ],
+      "id": "75f2a528-4b44-4664-b436-70044a897f53",
+      "name": "Basic LLM Chain",
+      "retryOnFail": true,
+      "waitBetweenTries": 5000
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemini-3.1-flash-lite",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1.1,
+      "position": [
+        528,
+        224
+      ],
+      "id": "cd73c5d4-179f-4c82-a47a-285b6098a308",
+      "name": "Google Gemini Chat Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "VGAOgBNqAwlblNk4",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "create",
+        "base": {
+          "__rl": true,
+          "value": "appGZgTdLg6sob3qP",
+          "mode": "list",
+          "cachedResultName": "Lead Management",
+          "cachedResultUrl": "https://airtable.com/appGZgTdLg6sob3qP"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tblyVL4sYY7WknNgS",
+          "mode": "list",
+          "cachedResultName": "Leads",
+          "cachedResultUrl": "https://airtable.com/appGZgTdLg6sob3qP/tblyVL4sYY7WknNgS"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Name": "={{ $('Edit Fields').item.json['Full name'] }}",
+            "Email": "={{ $('Edit Fields').item.json.Email }}",
+            "Phone": "={{ $('Edit Fields').item.json.Phone }}",
+            "Message": "={{ $('Edit Fields').item.json.Message }}",
+            "Category": "={{ $json.text }}",
+            "Status": "New",
+            "Date Received": "={{ $now.toISO() }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Name",
+              "displayName": "Name",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Email",
+              "displayName": "Email",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Phone",
+              "displayName": "Phone",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Message",
+              "displayName": "Message",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Category",
+              "displayName": "Category",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "options",
+              "options": [
+                {
+                  "name": "Hot Lead",
+                  "value": "Hot Lead"
+                },
+                {
+                  "name": "Warm Lead",
+                  "value": "Warm Lead"
+                },
+                {
+                  "name": "Just Browsing",
+                  "value": "Just Browsing"
+                }
+              ],
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Date Received",
+              "displayName": "Date Received",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "dateTime",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Status",
+              "displayName": "Status",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "options",
+              "options": [
+                {
+                  "name": "New",
+                  "value": "New"
+                },
+                {
+                  "name": "Contacted",
+                  "value": "Contacted"
+                },
+                {
+                  "name": "Responded",
+                  "value": "Responded"
+                }
+              ],
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Days Since Received",
+              "displayName": "Days Since Received",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": true,
+              "removed": true
+            },
+            {
+              "id": "Total Status Updates",
+              "displayName": "Total Status Updates",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": true,
+              "removed": true
+            },
+            {
+              "id": "Last Status Update Date",
+              "displayName": "Last Status Update Date",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": true,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.2,
+      "position": [
+        800,
+        0
+      ],
+      "id": "1ef2eedd-a7f7-4464-a2ab-b35377abf91f",
+      "name": "Create a record",
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "fU3e3dZNJuWSrqVz",
+          "name": "Airtable Personal Access Token account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Write a short, warm, professional email body for a real estate inquiry.\n\nYou are a senior real estate assistant writing on behalf of a CEO or marketing director.\nYour tone should be calm, polished, confident, and helpful.\nDo not sound robotic, overly formal, or overly excited.\n\nLead name: {{ $('Edit Fields').item.json['Full name'] }}\nTheir message: {{ $('Edit Fields').item.json.Message }}\nCategory: {{ $('Basic LLM Chain').item.json.text }}\n\nInstructions:\n- Read the message carefully and respond naturally.\n- Acknowledge the inquiry in a warm but professional way.\n- Use the category only to choose the response style.\n- Do not mention the category name in the email.\n- Do not repeat the subject line wording.\n- Do not start with “Thank you for reaching out.”\n- Do not include a subject line.\n- Do not include any booking link.\n- Do not mention redirection.\n- Do not invent details that are not in the message.\n- Keep it under 100 words.\n- End with a professional closing such as \"Best regards,\" or \"Warm regards,\".\n- Then sign as \"The Meridian Realty Team\".\n\nResponse by category:\n- Hot Lead: Acknowledge urgency naturally and suggest a brief call this week.\n- Warm Lead: Acknowledge interest and offer to send matching listings.\n- Just Browsing: Acknowledge the inquiry and offer general help.\n\nReturn only the email body.",
+        "batching": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.9,
+      "position": [
+        1024,
+        0
+      ],
+      "id": "910acd3d-f2b8-4b39-bd64-4001d71ceda8",
+      "name": "Basic LLM Chain1",
+      "retryOnFail": true,
+      "waitBetweenTries": 5000
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemini-3.5-flash",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1.1,
+      "position": [
+        1104,
+        224
+      ],
+      "id": "fd2dc9bc-ad32-4d89-ad55-a125d502fe94",
+      "name": "Google Gemini Chat Model1",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "VGAOgBNqAwlblNk4",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $('Edit Fields').item.json.Email }}",
+        "subject": "=Thank you for reaching out, {{ $('Edit Fields').item.json['Full name'] }}.",
+        "emailType": "text",
+        "message": "={{ $json.text }}",
+        "options": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        1376,
+        0
+      ],
+      "id": "9810dcf8-ab82-4a9e-b285-302ff05c395a",
+      "name": "Send a message",
+      "webhookId": "c03d32da-51a7-4197-b911-4461ebedaa51",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "JgKCZVh9xnqURAWM",
+          "name": "Gmail account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Basic LLM Chain": {
+      "main": [
+        [
+          {
+            "node": "Create a record",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Basic LLM Chain1",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create a record": {
+      "main": [
+        [
+          {
+            "node": "Basic LLM Chain1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Basic LLM Chain1": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "fe82f6e4-1953-4918-8352-b2957238ed86",
+  "meta": {
+    "instanceId": "4f5adad9f37c528b1dd007dc3c89d5d56b1c0f931281ae3bf413de30b2448f3b"
+  },
+  "nodeGroups": [],
+  "id": "Fhy8trNUhjV7ngHS",
+  "tags": []
+}
