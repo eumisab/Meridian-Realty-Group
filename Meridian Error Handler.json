@@ -1,0 +1,74 @@
+{
+  "name": "Error Trigger",
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.errorTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "0f9b876d-9102-437a-bf9d-9e479771a2c0",
+      "name": "Error Trigger"
+    },
+    {
+      "parameters": {
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "value": "C0BHEHDL5HQ",
+          "mode": "list",
+          "cachedResultName": "sys-errors"
+        },
+        "text": "=❌ Meridian Pipeline Error  \nNode: {{ $json.execution.lastNodeExecuted }}\nError: {{ $json.execution.error.message }} \nhttp://localhost:5678/workflow/{{ $json.workflow.id }}/executions/{{ $json.execution.id }}",
+        "otherOptions": {
+          "includeLinkToWorkflow": false
+        }
+      },
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.5,
+      "position": [
+        224,
+        0
+      ],
+      "id": "61017e30-4fa0-425c-8ce0-83c8d93b1468",
+      "name": "Send a message",
+      "webhookId": "dbc898d0-8bd7-45df-8479-32f77ca88e13",
+      "credentials": {
+        "slackApi": {
+          "id": "GfraEnAVd0llXJ17",
+          "name": "Slack account 2"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Error Trigger": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "a1c6638e-11cc-42e0-8337-7de3e0c24999",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "dd1c16a7b7eaf6bc0a10f19c6cc002cf373dce9c8bcfd61f62ad83332cb5ff23"
+  },
+  "nodeGroups": [],
+  "id": "KxEm9WzICKfM355R",
+  "tags": []
+}
