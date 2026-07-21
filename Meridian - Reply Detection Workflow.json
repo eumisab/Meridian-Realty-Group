@@ -1,0 +1,501 @@
+{
+  "name": "Meridian - Reply Detection Workflow",
+  "nodes": [
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        },
+        "simple": false,
+        "filters": {
+          "labelIds": [
+            "INBOX"
+          ],
+          "q": "subject:Re:"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmailTrigger",
+      "typeVersion": 1.4,
+      "position": [
+        0,
+        0
+      ],
+      "id": "718c1094-9821-474a-a816-7013e0f25309",
+      "name": "Gmail Trigger",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "4oLxXrDTOMzS3cfH",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "search",
+        "base": {
+          "__rl": true,
+          "value": "appGZgTdLg6sob3qP",
+          "mode": "list",
+          "cachedResultName": "Meridian Realty Lead Management",
+          "cachedResultUrl": "https://airtable.com/appGZgTdLg6sob3qP"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tblyVL4sYY7WknNgS",
+          "mode": "list",
+          "cachedResultName": "Leads",
+          "cachedResultUrl": "https://airtable.com/appGZgTdLg6sob3qP/tblyVL4sYY7WknNgS"
+        },
+        "filterByFormula": "={Email} = \"{{ $json.from.value[0].address }}\"",
+        "returnAll": false,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.2,
+      "position": [
+        224,
+        0
+      ],
+      "id": "b4de9df7-1b18-4e9f-b296-dc0fa9314bab",
+      "name": "Search records",
+      "alwaysOutputData": true,
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "ZSOBwPzJsz7sV1O1",
+          "name": "Airtable Personal Access Token account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "925f3492-9310-42b9-bcfd-9bb803a5de6c",
+              "leftValue": "={{ $json.id }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        448,
+        0
+      ],
+      "id": "4077fea4-f209-4ee6-a4b4-d2ec55b74213",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "base": {
+          "__rl": true,
+          "value": "appGZgTdLg6sob3qP",
+          "mode": "list",
+          "cachedResultName": "Meridian Realty Lead Management",
+          "cachedResultUrl": "https://airtable.com/appGZgTdLg6sob3qP"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tblyVL4sYY7WknNgS",
+          "mode": "list",
+          "cachedResultName": "Leads",
+          "cachedResultUrl": "https://airtable.com/appGZgTdLg6sob3qP/tblyVL4sYY7WknNgS"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "id": "={{ $('Search records').item.json.id }}",
+            "Status": "Responded"
+          },
+          "matchingColumns": [
+            "id"
+          ],
+          "schema": [
+            {
+              "id": "id",
+              "displayName": "id",
+              "required": false,
+              "defaultMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": true,
+              "removed": false
+            },
+            {
+              "id": "Name",
+              "displayName": "Name",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "Email",
+              "displayName": "Email",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "Phone",
+              "displayName": "Phone",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "Message",
+              "displayName": "Message",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "Category",
+              "displayName": "Category",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "options",
+              "options": [
+                {
+                  "name": "Hot Lead",
+                  "value": "Hot Lead"
+                },
+                {
+                  "name": "Warm Lead",
+                  "value": "Warm Lead"
+                },
+                {
+                  "name": "Just Browsing",
+                  "value": "Just Browsing"
+                }
+              ],
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "Date Received",
+              "displayName": "Date Received",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "dateTime",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "Status",
+              "displayName": "Status",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "options",
+              "options": [
+                {
+                  "name": "New",
+                  "value": "New"
+                },
+                {
+                  "name": "Contacted",
+                  "value": "Contacted"
+                },
+                {
+                  "name": "Responded",
+                  "value": "Responded"
+                },
+                {
+                  "name": "Has New Message",
+                  "value": "Has New Message"
+                }
+              ],
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Days Since Received",
+              "displayName": "Days Since Received",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": true,
+              "removed": true
+            },
+            {
+              "id": "Follow-up 1 Sent",
+              "displayName": "Follow-up 1 Sent",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "dateTime",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "Follow-up 2 Sent",
+              "displayName": "Follow-up 2 Sent",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "dateTime",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "Last Message Date",
+              "displayName": "Last Message Date",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "dateTime",
+              "readOnly": false,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.2,
+      "position": [
+        672,
+        -96
+      ],
+      "id": "f8d01aa5-7db2-4dfd-970a-08cd9ca017c7",
+      "name": "Update record",
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "ZSOBwPzJsz7sV1O1",
+          "name": "Airtable Personal Access Token account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "value": "C0BGE3L0MDG",
+          "mode": "list",
+          "cachedResultName": "sys-leads"
+        },
+        "text": "=✅ Lead replied!\n\nName: {{ $('Search records').item.json.fields.Name }}\nEmail: {{ $('Search records').item.json.fields.Email }}\nCategory: {{ $('Search records').item.json.fields.Category }}\n\nTheir reply: {{ $('Gmail Trigger').item.json.text.split('\\n\\n>')[0] }}",
+        "otherOptions": {
+          "includeLinkToWorkflow": false
+        }
+      },
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.5,
+      "position": [
+        896,
+        -96
+      ],
+      "id": "05219dd6-0aa0-4507-87c7-5aba27367b1d",
+      "name": "Send a message",
+      "webhookId": "5623bcfe-03e7-480e-a063-9820c3165112",
+      "credentials": {
+        "slackApi": {
+          "id": "GfraEnAVd0llXJ17",
+          "name": "Slack account 2"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        672,
+        96
+      ],
+      "id": "bba74c40-baf7-467c-a8b0-5d8fb86a2212",
+      "name": "No Operation, do nothing"
+    }
+  ],
+  "pinData": {
+    "Gmail Trigger": [
+      {
+        "json": {
+          "id": "19f82bc79d90ce06",
+          "threadId": "19f82b8ba5b93540",
+          "labelIds": [
+            "INBOX"
+          ],
+          "sizeEstimate": 7755,
+          "headers": {
+            "delivered-to": "Delivered-To: attacsab@gmail.com",
+            "received": "Received: from mail-sor-f41.google.com (mail-sor-f41.google.com. [209.85.220.41])\r\n        by mx.google.com with SMTPS id 006d021491bc7-6a516b9c11asor4858907eaf.1.2026.07.20.20.33.37\r\n        for <attacsab@gmail.com>\r\n        (Google Transport Security);\r\n        Mon, 20 Jul 2026 20:33:37 -0700 (PDT)",
+            "x-received": "X-Received: by 2002:a05:6820:1ca7:b0:69e:31fc:d134 with SMTP id\r\n 006d021491bc7-6a536ab87e8mr8439257eaf.49.1784604817139; Mon, 20 Jul 2026\r\n 20:33:37 -0700 (PDT)",
+            "arc-seal": "ARC-Seal: i=1; a=rsa-sha256; t=1784604817; cv=none;\r\n        d=google.com; s=arc-20260327;\r\n        b=rV30/VPMB8mGdgRsmelMq0gi/tCTFIsh7Pa9px4qj62tElPV6Ia/pVwYkHHw/Bylv5\r\n         AH2C6q5BZwEUcHF3W3xuQ3UxrKrfXikZDVJKNWZn9o1UhBl5L4+TrQCzQN6Ozq68G88m\r\n         8TdJKWclSrW4XLfp5UfG9ilWVyrbKuz1wM6XwGLO/v+K63nAgjn+hJKpl63gk2xb0yPN\r\n         IA/YTkqckDmDv09hv1zjaHUf5IIGmnEnCzXcmRAGUeoe8ZGwLG6xzji39VGW1ymEM4eA\r\n         XYCeEd4IBdSNi3FPPrUzyLw1gsvhKlVR8luHQuRYDYIpLBoD4IbfKbZH6NbJFw1ieCNk\r\n         Xxfw==",
+            "arc-message-signature": "ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;\r\n        h=to:subject:message-id:date:from:in-reply-to:references:mime-version\r\n         :dkim-signature;\r\n        bh=QrZovN4Fb4KgLnNEkXzRBZw3cwG8WRHz57uxIhMs9C8=;\r\n        fh=f/R8QCDLlVanm6pQeMnlCj3Zx7Mab2Quvl87qN9wA+o=;\r\n        b=aC7iDncEmzvFgsRT91iT3OzWrcPuZlSQUpxgci1OXNo6LC8seSOaB7KQIDr5NJWvZ6\r\n         Cqetf4knIrG280JdEIG/7vqyYb498Cu2QrK+LUowHKG51ZsHREQ4j/2apvFVGHVTtDzx\r\n         RakeUj9rtR+iQ/gJ/XrZCZ9dY5lG6NrYQTzQR+VhRu36u96LBnfzPqaAfJsJZ3qzdNu3\r\n         MuVjUw3RFt6mm9kzzX8/m/UPYCjs9E4uuY+XVZ2FzEg4fCfMZpP6pZy9ubW7DYi5xn9q\r\n         zTE/rIleQ75BZE+rlh9UlIycAOrvCU891bDNd/g99jO9yIG43LDn4bk2HAWhld3pc8CL\r\n         Go8g==;\r\n        dara=google.com",
+            "arc-authentication-results": "ARC-Authentication-Results: i=1; mx.google.com; arc=none",
+            "return-path": "Return-Path: <eumisabueto@gmail.com>",
+            "received-spf": "Received-SPF: pass (google.com: domain of eumisabueto@gmail.com designates 209.85.220.41 as permitted sender) client-ip=209.85.220.41;",
+            "authentication-results": "Authentication-Results: mx.google.com;\r\n       dkim=pass header.i=@gmail.com header.s=20251104 header.b=I3WXcTYL;\r\n       arc=pass (i=1);\r\n       spf=pass (google.com: domain of eumisabueto@gmail.com designates 209.85.220.41 as permitted sender) smtp.mailfrom=eumisabueto@gmail.com;\r\n       dmarc=pass (p=NONE sp=QUARANTINE dis=NONE) header.from=gmail.com;\r\n       dara=pass header.i=@gmail.com",
+            "dkim-signature": "DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;\r\n        d=gmail.com; s=20251104; t=1784604817; x=1785209617; dara=google.com;\r\n        h=content-type:to:subject:message-id:date:from:in-reply-to:references\r\n         :mime-version:from:to:cc:subject:date:message-id:reply-to\r\n         :content-type;\r\n        bh=QrZovN4Fb4KgLnNEkXzRBZw3cwG8WRHz57uxIhMs9C8=;\r\n        b=I3WXcTYLNGLS89km7hfus3pJul1Wd/PYzpsCbUu+fo7jbtLKLhU5ySD8cRjtOEBL7B\r\n         V4cc6lDO57nnA4rmUt2ubR5SLwH0fjw1H91SgWkRad7Iyr80wMSEhkNiE9YfD3L4iPjT\r\n         TrASzAiqxaeYlax52ftqwqXNzPGYPbVSFqvecCRiZmy8N2Gj7DGJrOkbe78CyBXDHb5O\r\n         cPjDdKbzaDWinOX84tWSXN561yr9N8IThhxuxrM94/S2lFM/URNN+4KhdFtc0DO3Ra7i\r\n         BORT0JHpL141+81wv+mtPyIUP4eXX6BcPyw0Wk8K87sFAXk4/X6Al1shSvDs77vjcecy\r\n         uf8g==",
+            "x-google-dkim-signature": "X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;\r\n        d=1e100.net; s=20251104; t=1784604817; x=1785209617;\r\n        h=content-type:to:subject:message-id:date:from:in-reply-to:references\r\n         :mime-version:x-gm-gg:x-gm-message-state:from:to:cc:subject:date\r\n         :message-id:reply-to:content-type;\r\n        bh=QrZovN4Fb4KgLnNEkXzRBZw3cwG8WRHz57uxIhMs9C8=;\r\n        b=hI4cTKGifwaVS9OhLy1oSoT4oXDlCstfBITT9ZvksUDZcncD5707bNpOyMU7ZDi/II\r\n         3PwRmHaf5uuzA5dYn6uoMl/XX7Mbftyo3p3W0YGtCgE1UM6rqsMXrGTqCoSDMww22Q85\r\n         1zT5HulJm27P5xDIGo5D6EweJPyLKG8txgQGlwO7cBjp81YAWz5qGZoLnLjkcaLGuWJJ\r\n         kI9aAas8t0vtpCZtGJykMkrlJL7LhtAZLd5GGiE8hZGF9e6JLaF9uV2eMR0bbcTcy8tL\r\n         STRskYo0w/qn19lnzuE8yTYkTwOrNnKu9Yrz5g40K7X8et8gIvPUIBgxacgCbxTSLgqn\r\n         YMfw==",
+            "x-gm-message-state": "X-Gm-Message-State: AOJu0Yw0TMzSsemOIWjrM2s5vbTZUzZrynuq1BZmYlgLnWvi6jnXYt+/\r\n\tCIoF8UeypbxY6QzQdemP3WqUeq3pxVnRt87NuLgXxOydZhUHCLF12uxjMqg7VSnryqTUbefiBoY\r\n\tf7FZSsu+Ehz2Y5S6n2KGYow7cC5CE+36C6L3H",
+            "x-gm-gg": "X-Gm-Gg: AfdE7ckeFDIWUHEBbPO/tb/kEeBZqM5J9TqIxEOIRqcXfbFPy6ZwbDZ7Bf9e14bPLHc\r\n\tzxYO1QM6odaOM5I8ekOvgEHxdzw4JRzgsPjqoJlhrQ9hqPaZk9JG0bfVvbbJkm5hktJ/3qPQUbE\r\n\tqFBLMZsBD3brXNRueHR9XJqHjsTlFKnNja+FY6eLykN6r7/3T9uW386+o/JCdPlyDHdXCJ32r3R\r\n\trD+V931gXwlsdqbE31oBBcPpuFrMlmteW7PShnseB7JCk0/Ybzuwz9c1uPmvJQ=",
+            "mime-version": "MIME-Version: 1.0",
+            "references": "References: <CAFVnzVj9Upxks=w6V==hRcHa2xQrSOuXLP3NuhCijfkrKiffeA@mail.gmail.com>",
+            "in-reply-to": "In-Reply-To: <CAFVnzVj9Upxks=w6V==hRcHa2xQrSOuXLP3NuhCijfkrKiffeA@mail.gmail.com>",
+            "from": "From: Sab <eumisabueto@gmail.com>",
+            "date": "Date: Tue, 21 Jul 2026 11:33:25 +0800",
+            "x-gm-features": "X-Gm-Features: AUfX_mx8N_CXBd2eUZ27nnQY6ZFNK2kmo1B5B01E-HHyd4gnhtRdAf47B4_PLOM",
+            "message-id": "Message-ID: <CAFic8Le0frt1tsSBWS_dH5EFL5Wz2parpeOQ5sNRA7c3zU=zZA@mail.gmail.com>",
+            "subject": "Subject: Re: Checking in one last time, Sab Sade",
+            "to": "To: Sab Sab <attacsab@gmail.com>",
+            "content-type": "Content-Type: multipart/alternative; boundary=\"00000000000030ac1f065716b011\""
+          },
+          "html": "<div dir=\"auto\">Hi, yes! I’d love to jump on a call tomorrow. I’m free at 12 noon. Just lmk :)</div><div><div class=\"gmail_quote gmail_quote_container\"><blockquote class=\"gmail_quote\" style=\"margin:0px 0px 0px 0.8ex;border-left-width:1px;border-left-style:solid;padding-left:1ex;border-left-color:rgb(204,204,204)\">\n</blockquote></div></div>\n",
+          "text": "Hi, yes! I’d love to jump on a call tomorrow. I’m free at 12 noon. Just lmk\n:)\n\n>\n",
+          "textAsHtml": "<p>Hi, yes! I&rsquo;d love to jump on a call tomorrow. I&rsquo;m free at 12 noon. Just lmk<br/>:)</p><p>&gt;</p>",
+          "subject": "Re: Checking in one last time, Sab Sade",
+          "references": "<CAFVnzVj9Upxks=w6V==hRcHa2xQrSOuXLP3NuhCijfkrKiffeA@mail.gmail.com>",
+          "date": "2026-07-21T03:33:25.000Z",
+          "to": {
+            "value": [
+              {
+                "address": "attacsab@gmail.com",
+                "name": "Sab Sab"
+              }
+            ],
+            "html": "<span class=\"mp_address_group\"><span class=\"mp_address_name\">Sab Sab</span> &lt;<a href=\"mailto:attacsab@gmail.com\" class=\"mp_address_email\">attacsab@gmail.com</a>&gt;</span>",
+            "text": "\"Sab Sab\" <attacsab@gmail.com>"
+          },
+          "from": {
+            "value": [
+              {
+                "address": "eumisabueto@gmail.com",
+                "name": "Sab"
+              }
+            ],
+            "html": "<span class=\"mp_address_group\"><span class=\"mp_address_name\">Sab</span> &lt;<a href=\"mailto:eumisabueto@gmail.com\" class=\"mp_address_email\">eumisabueto@gmail.com</a>&gt;</span>",
+            "text": "\"Sab\" <eumisabueto@gmail.com>"
+          },
+          "messageId": "<CAFic8Le0frt1tsSBWS_dH5EFL5Wz2parpeOQ5sNRA7c3zU=zZA@mail.gmail.com>",
+          "inReplyTo": "<CAFVnzVj9Upxks=w6V==hRcHa2xQrSOuXLP3NuhCijfkrKiffeA@mail.gmail.com>"
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      }
+    ]
+  },
+  "connections": {
+    "Gmail Trigger": {
+      "main": [
+        [
+          {
+            "node": "Search records",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Search records": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Update record",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "No Operation, do nothing",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update record": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false,
+    "timeSavedMode": "fixed",
+    "errorWorkflow": "KxEm9WzICKfM355R",
+    "callerPolicy": "workflowsFromSameOwner"
+  },
+  "versionId": "7472224f-78b1-49f6-94b3-c88e49c99bd1",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "dd1c16a7b7eaf6bc0a10f19c6cc002cf373dce9c8bcfd61f62ad83332cb5ff23"
+  },
+  "nodeGroups": [],
+  "id": "ihcoOZPY2YHdTqJd",
+  "tags": []
+}

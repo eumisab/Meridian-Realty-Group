@@ -1,21 +1,24 @@
 {
-  "name": "Meridian follow-up",
+  "name": "Meridian Follow-Up",
   "nodes": [
     {
       "parameters": {
         "rule": {
           "interval": [
-            {}
+            {
+              "field": "minutes",
+              "minutesInterval": 1
+            }
           ]
         }
       },
       "type": "n8n-nodes-base.scheduleTrigger",
       "typeVersion": 1.3,
       "position": [
-        0,
+        -896,
         400
       ],
-      "id": "749c4694-2268-428c-9240-62bd5fdb6c12",
+      "id": "e1b259e4-8161-4d17-ac76-f3a13222124e",
       "name": "Schedule Trigger"
     },
     {
@@ -35,7 +38,7 @@
           "cachedResultName": "Leads",
           "cachedResultUrl": "https://airtable.com/appGZgTdLg6sob3qP/tblyVL4sYY7WknNgS"
         },
-        "filterByFormula": "OR(   AND(     {Status} = \"New\",     IS_BEFORE({Date Received}, DATEADD(NOW(), -3, \"days\")),     {Follow-up 1 Sent} = BLANK()   ),   AND(     {Status} = \"New\",     IS_BEFORE({Date Received}, DATEADD(NOW(), -7, \"days\")),     {Follow-up 2 Sent} = BLANK()   ) )",
+        "filterByFormula": "OR(\n  AND(\n    {Status} = \"New\",\n    IS_BEFORE({Date Received}, DATEADD(NOW(), -3, \"days\")),\n    {Follow-up 1 Sent} = BLANK()\n  ),\n  AND(\n    OR({Status} = \"New\", {Status} = \"Contacted\"),\n    IS_BEFORE({Date Received}, DATEADD(NOW(), -7, \"days\")),\n    {Follow-up 1 Sent} != BLANK(),\n    {Follow-up 2 Sent} = BLANK()\n  ),\n  AND(\n    {Status} = \"Has New Message\",\n    IS_BEFORE({Last Message Date}, DATEADD(NOW(), -3, \"days\")),\n    {Follow-up 1 Sent} = BLANK()\n  ),\n  AND(\n    OR({Status} = \"Has New Message\", {Status} = \"Contacted\"),\n    IS_BEFORE({Last Message Date}, DATEADD(NOW(), -7, \"days\")),\n    {Follow-up 1 Sent} != BLANK(),\n    {Follow-up 2 Sent} = BLANK()\n  )\n)",
         "returnAll": false,
         "options": {},
         "sort": {
@@ -45,23 +48,23 @@
       "type": "n8n-nodes-base.airtable",
       "typeVersion": 2.2,
       "position": [
-        224,
+        -672,
         400
       ],
-      "id": "5e909a4f-ae52-44a4-bf94-126a18989478",
+      "id": "a9e8ed0e-cff8-4aa6-972b-6cbf90fea0bf",
       "name": "Search records",
       "alwaysOutputData": true,
       "credentials": {
         "airtableTokenApi": {
-          "id": "fU3e3dZNJuWSrqVz",
-          "name": "Airtable Personal Access Token account 2"
+          "id": "ZSOBwPzJsz7sV1O1",
+          "name": "Airtable Personal Access Token account"
         }
       }
     },
     {
       "parameters": {
         "promptType": "define",
-        "text": "=Write a short, friendly follow-up email for a real estate lead who hasn't replied to our first message.\n\nLead name: {{ $json.fields.Name }}\nTheir original message: {{ $json.fields.Message }}\nCategory: {{ $json.fields.Category }}\n\nTone guidelines per category:\n- Hot Lead: slightly more urgent, mention that properties move fast and we want to make sure they don't miss out\n- Warm Lead: casual and helpful, offer to answer any questions they might have\n- Just Browsing: zero pressure, remind them we're here when they're ready, offer a free market update\n\nKeep it under 80 words. Do not use the word \"just\" (e.g. avoid \"just checking in\"). Do not use abbreviations like ASAP; write out \"as soon as possible\" instead. End with a proper closing line such as \"Best regards,\" followed by \"The Meridian Realty Team.\" Return only the email body, no subject line.",
+        "text": "=Write a short, friendly follow-up email for a real estate lead who hasn't replied to our first message.\n\nLead name: {{ $json.fields.Name }}\nTheir original message: {{ $json.fields.Message }}\nCategory: {{ $json.fields.Category }}\n\nContext: We already sent this lead an initial reply email. They have not responded. This is our first follow-up — explicitly but briefly acknowledge that we sent a previous message and haven't heard back, without sounding pushy or repetitive.\n\nTone guidelines per category:\n- Hot Lead: warm and proactive, acknowledge their urgency naturally and offer to set up a brief call this week to discuss next steps.\n- Warm Lead: casual and helpful, offer to answer any questions they might have.\n- Just Browsing: zero pressure, remind them we're here when they're ready, offer a free market update.\n\nInstructions:\n- Write in first-person plural — always use \"we\", \"our\", and \"us\", never \"I\" or \"my\".\n- Do not use phrases like \"we noticed\", \"we saw\", or \"we observed\" — they sound like we are monitoring the lead.\n- Use only the lead's first name in the greeting, not their full name.\n- Start with \"Hi [First Name]!\" — never use \"Dear\".\n- Explicitly but briefly mention that we sent a previous message, e.g. \"We wanted to follow up on our last email\" or \"We haven't heard back and wanted to check in.\"\n- Do not reintroduce ourselves as if this is the first contact.\n- Do not use phrases like \"touching base\", \"circling back\", \"reaching out again\", or \"as soon as possible\".\n- Keep it under 80 words.\n- Do not use the word \"just\" (e.g. avoid \"just checking in\").\n- Do not use urgency-pressure phrases like \"properties move fast\", \"before it disappears\", \"don't miss out\", or anything that implies scarcity or pressure.\n- Do not make promises or guarantees about availability, timelines, or outcomes.\n- Suggest a specific timeframe like \"this week\" or \"at your convenience\" instead of vague urgency phrases.\n- End with a professional closing such as \"Best regards,\" or \"Warm regards,\" — vary it so it doesn't get repetitive.\n- Then sign as \"The Meridian Realty Team\".\n- Return the email body as simple HTML using <p> tags for paragraphs. No styling, no headers, just <p> tags.\n\nReturn only the email body, no subject line.",
         "messages": {
           "messageValues": []
         },
@@ -70,10 +73,10 @@
       "type": "@n8n/n8n-nodes-langchain.chainLlm",
       "typeVersion": 1.9,
       "position": [
-        896,
+        0,
         0
       ],
-      "id": "0cb8727b-8f4a-4e6d-ba98-4c6092fc46f9",
+      "id": "976497f9-ff9f-4585-ac1c-a69c60fd35c8",
       "name": "Basic LLM Chain",
       "retryOnFail": true,
       "waitBetweenTries": 5000,
@@ -87,14 +90,14 @@
       "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
       "typeVersion": 1.1,
       "position": [
-        976,
+        80,
         224
       ],
-      "id": "5f9f7aa3-523b-4d2e-b075-c2ea457b115c",
+      "id": "201eb2a4-9c42-440d-aafe-34d1830fb9d4",
       "name": "Google Gemini Chat Model",
       "credentials": {
         "googlePalmApi": {
-          "id": "VGAOgBNqAwlblNk4",
+          "id": "GEg6o2XNSkvvvB2e",
           "name": "Google Gemini(PaLM) Api account"
         }
       }
@@ -103,22 +106,23 @@
       "parameters": {
         "sendTo": "={{ $('Switch').item.json.fields.Email }}",
         "subject": "=Following up on your inquiry, {{ $('Switch').item.json.fields.Name }}",
-        "emailType": "text",
         "message": "={{ $json.text }}",
-        "options": {}
+        "options": {
+          "appendAttribution": false
+        }
       },
       "type": "n8n-nodes-base.gmail",
       "typeVersion": 2.2,
       "position": [
-        1248,
+        352,
         112
       ],
-      "id": "f3ec9615-b2c4-4c98-bacf-c35a790e4aef",
+      "id": "eda3fdd4-63db-4166-a19e-7a5c1b22bb3f",
       "name": "Send a message",
       "webhookId": "8dffb0ef-1afa-4e33-b69d-6401a7234845",
       "credentials": {
         "gmailOAuth2": {
-          "id": "JgKCZVh9xnqURAWM",
+          "id": "4oLxXrDTOMzS3cfH",
           "name": "Gmail account"
         }
       }
@@ -260,6 +264,10 @@
                 {
                   "name": "Responded",
                   "value": "Responded"
+                },
+                {
+                  "name": "Has New Message",
+                  "value": "Has New Message"
                 }
               ],
               "readOnly": false,
@@ -299,26 +307,15 @@
               "removed": true
             },
             {
-              "id": "Last Status Update Date",
-              "displayName": "Last Status Update Date",
+              "id": "Last Message Date",
+              "displayName": "Last Message Date",
               "required": false,
               "defaultMatch": false,
               "canBeUsedToMatch": true,
               "display": true,
-              "type": "string",
-              "readOnly": true,
-              "removed": true
-            },
-            {
-              "id": "Total Status Updates",
-              "displayName": "Total Status Updates",
-              "required": false,
-              "defaultMatch": false,
-              "canBeUsedToMatch": true,
-              "display": true,
-              "type": "string",
-              "readOnly": true,
-              "removed": true
+              "type": "dateTime",
+              "readOnly": false,
+              "removed": false
             }
           ],
           "attemptToConvertTypes": false,
@@ -329,15 +326,15 @@
       "type": "n8n-nodes-base.airtable",
       "typeVersion": 2.2,
       "position": [
-        1472,
+        576,
         112
       ],
-      "id": "24257099-ae2f-4127-a8fb-21274c0d300b",
+      "id": "9f68358b-db7f-4506-a85d-04e2baef2753",
       "name": "Update record",
       "credentials": {
         "airtableTokenApi": {
-          "id": "fU3e3dZNJuWSrqVz",
-          "name": "Airtable Personal Access Token account 2"
+          "id": "ZSOBwPzJsz7sV1O1",
+          "name": "Airtable Personal Access Token account"
         }
       }
     },
@@ -346,16 +343,16 @@
       "type": "n8n-nodes-base.noOp",
       "typeVersion": 1,
       "position": [
-        672,
+        -224,
         496
       ],
-      "id": "cdab6a52-b88a-44a8-b048-5cac6b233e5b",
+      "id": "8ff75274-a10b-4069-803f-c73cef9cefff",
       "name": "No Operation, do nothing"
     },
     {
       "parameters": {
         "promptType": "define",
-        "text": "=Write a brief final follow-up email for a real estate lead who hasn't replied to two previous messages.\n\nLead name: {{ $('Search records').item.json.fields.Name }}\nTheir original message: {{ $('Search records').item.json.fields.Message }}\nCategory: {{ $('Search records').item.json.fields.Category }}\n\nTone guidelines:\n- Hot Lead: warm and direct, mention we can hold a consultation slot for them this week if they’re available, and keep the door open.\n- Warm Lead: friendly and helpful, offer one useful resource, and mention we can send a free property comparison report if they reply.\n- Just Browsing: light and low-pressure, wish them well in their search and let them know they can reach out anytime.\n\nThis is the final message. Keep it short, natural, and human. Do not repeat the wording from earlier emails. Do not use \"ASAP\", \"step back\", or any phrase that sounds passive or cold. Use a calm, professional tone with one clear offer. Avoid using the word inventory. Use natural real estate terms like homes, places, listings, or options only when appropriate. Do not imply where our team is located. Avoid phrases like \"here in Colorado\" or anything that suggests we are physically based in the lead’s location.\n\nWrite it like a real agent would, for example:\nHi Arthur! Reaching out one last time about your Colorado cabin search. We can hold a consultation slot for you this week if you’re available. If the timing is not right, no problem — we are happy to help whenever you are ready.\n\nEnd with:\nBest regards(you can change this for any other options, so it doesn't get repetitive),\nThe Meridian Realty Team\n\nReturn only the email body, no subject line.",
+        "text": "=Write a brief final follow-up email for a real estate lead who hasn't replied to two previous messages.\n\nLead name: {{ $('Search records').item.json.fields.Name }}\nTheir original message: {{ $('Search records').item.json.fields.Message }}\nCategory: {{ $('Search records').item.json.fields.Category }}\n\nContext: We already sent this lead an initial reply email and a first follow-up three days later. They have not responded to either. This is our final follow-up — briefly acknowledge that we have reached out before without sounding cold, frustrated, or passive-aggressive.\n\nTone guidelines per category:\n- Hot Lead: warm and proactive, mention we can set up a call this week if they're available, and keep the door open.\n- Warm Lead: friendly and helpful, offer one useful resource, and mention we can send a free property comparison report if they reply.\n- Just Browsing: light and low-pressure, wish them well in their search and let them know they can reach out anytime.\n\nInstructions:\n- Write in first-person plural — always use \"we\", \"our\", and \"us\", never \"I\" or \"my\".\n- Use only the lead's first name in the greeting, not their full name.\n- Start with \"Hi [First Name]!\" — never use \"Dear\".\n- This is the final message. Keep it short, natural, and human.\n- Briefly acknowledge previous outreach without counting attempts or implying the lead has been unresponsive, e.g. \"We wanted to reach out one last time\" or \"We didn't want to let your inquiry go without one last note.\"\n- Do not reintroduce ourselves as if this is the first contact.\n- Do not repeat the wording from earlier emails.\n- Do not reference or compare previous searches or criteria the lead may have had before — only address what is in their current message.\n- Do not use phrases like \"touching base\", \"circling back\", \"reaching out again\", \"as soon as possible\", \"a couple of times\", or \"we have followed up multiple times\".\n- Do not use \"ASAP\", \"step back\", or any phrase that sounds passive or cold.\n- Do not use urgency-pressure phrases like \"properties move fast\", \"before it disappears\", \"don't miss out\", or anything that implies scarcity or pressure.\n- Do not use phrases like \"we noticed\", \"we saw\", or \"we observed\" — they sound like we are monitoring the lead.\n- Do not make promises or guarantees about availability, timelines, or outcomes.\n- Suggest a specific timeframe like \"this week\" or \"at your convenience\" instead of vague urgency phrases.\n- Use a calm, professional tone with one clear offer.\n- Avoid using the word \"inventory\". Use natural real estate terms like homes, places, listings, or options only when appropriate.\n- Do not imply where our team is located. Avoid phrases like \"here in Colorado\" or anything that suggests we are physically based in the lead's location.\n- Do not copy the structure or phrasing of the example below — it is only to demonstrate tone and length. Generate a unique email each time.\n- End with a professional closing such as \"Best regards,\" or \"Warm regards,\" — vary it so it doesn't get repetitive.\n- Then sign as \"The Meridian Realty Team\".\n- Return the email body as simple HTML using <p> tags for paragraphs. No styling, no headers, just <p> tags.\n- Do not claim to have taken any action on behalf of the lead such as updating search criteria, researching listings, or making any preparations — we have not done anything yet.\n\nWrite it like a real agent would — natural, brief, and human. Each email should feel unique and not like a template. No em dashes, unless needed.\n\nReturn only the email body, no subject line.",
         "messages": {
           "messageValues": []
         },
@@ -364,10 +361,10 @@
       "type": "@n8n/n8n-nodes-langchain.chainLlm",
       "typeVersion": 1.9,
       "position": [
-        896,
+        0,
         512
       ],
-      "id": "a9a08de4-aacf-401c-b93c-f50cfd3e3ee2",
+      "id": "8bb13a76-9f74-4ef3-8ff5-c4995cbeee95",
       "name": "Basic LLM Chain1",
       "retryOnFail": true,
       "waitBetweenTries": 5000,
@@ -375,20 +372,20 @@
     },
     {
       "parameters": {
-        "modelName": "models/gemini-3.5-flash",
+        "modelName": "models/gemini-3.1-flash-lite",
         "options": {}
       },
       "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
       "typeVersion": 1.1,
       "position": [
-        976,
+        80,
         736
       ],
-      "id": "4839ee05-1d32-4280-bafb-8943c0f3d1bf",
+      "id": "829cefbc-a16d-47ef-bc66-de715124f651",
       "name": "Google Gemini Chat Model1",
       "credentials": {
         "googlePalmApi": {
-          "id": "VGAOgBNqAwlblNk4",
+          "id": "GEg6o2XNSkvvvB2e",
           "name": "Google Gemini(PaLM) Api account"
         }
       }
@@ -397,22 +394,23 @@
       "parameters": {
         "sendTo": "={{ $('Switch').item.json.fields.Email }}",
         "subject": "=Checking in one last time, {{ $('Switch').item.json.fields.Name }}",
-        "emailType": "text",
         "message": "={{ $json.text }}",
-        "options": {}
+        "options": {
+          "appendAttribution": false
+        }
       },
       "type": "n8n-nodes-base.gmail",
       "typeVersion": 2.2,
       "position": [
-        1248,
+        352,
         512
       ],
-      "id": "7b6c2b36-e256-4d99-8559-24324793efc8",
+      "id": "83932021-78f0-4f0f-ae6c-a8c2238edf84",
       "name": "Send a message1",
       "webhookId": "8dffb0ef-1afa-4e33-b69d-6401a7234845",
       "credentials": {
         "gmailOAuth2": {
-          "id": "JgKCZVh9xnqURAWM",
+          "id": "4oLxXrDTOMzS3cfH",
           "name": "Gmail account"
         }
       }
@@ -554,6 +552,10 @@
                 {
                   "name": "Responded",
                   "value": "Responded"
+                },
+                {
+                  "name": "Has New Message",
+                  "value": "Has New Message"
                 }
               ],
               "readOnly": false,
@@ -593,26 +595,15 @@
               "removed": false
             },
             {
-              "id": "Last Status Update Date",
-              "displayName": "Last Status Update Date",
+              "id": "Last Message Date",
+              "displayName": "Last Message Date",
               "required": false,
               "defaultMatch": false,
               "canBeUsedToMatch": true,
               "display": true,
-              "type": "string",
-              "readOnly": true,
-              "removed": true
-            },
-            {
-              "id": "Total Status Updates",
-              "displayName": "Total Status Updates",
-              "required": false,
-              "defaultMatch": false,
-              "canBeUsedToMatch": true,
-              "display": true,
-              "type": "string",
-              "readOnly": true,
-              "removed": true
+              "type": "dateTime",
+              "readOnly": false,
+              "removed": false
             }
           ],
           "attemptToConvertTypes": false,
@@ -623,15 +614,15 @@
       "type": "n8n-nodes-base.airtable",
       "typeVersion": 2.2,
       "position": [
-        1472,
+        576,
         512
       ],
-      "id": "45c47fb0-8f53-4808-be7c-8b87cbd39fe2",
+      "id": "33a7f73e-89ea-49fc-aa81-1db06ca79dc5",
       "name": "Update record1",
       "credentials": {
         "airtableTokenApi": {
-          "id": "fU3e3dZNJuWSrqVz",
-          "name": "Airtable Personal Access Token account 2"
+          "id": "ZSOBwPzJsz7sV1O1",
+          "name": "Airtable Personal Access Token account"
         }
       }
     },
@@ -663,10 +654,10 @@
       "type": "n8n-nodes-base.if",
       "typeVersion": 2.3,
       "position": [
-        448,
+        -448,
         400
       ],
-      "id": "b7cd2fcb-075c-4a98-9889-5cc6359a5d84",
+      "id": "34ec60a8-0687-4654-b781-287c2ee04ae7",
       "name": "If1"
     },
     {
@@ -724,14 +715,167 @@
       "type": "n8n-nodes-base.switch",
       "typeVersion": 3.4,
       "position": [
-        672,
+        -224,
         304
       ],
-      "id": "c4675565-9e61-4c37-be2f-926a56c979b0",
+      "id": "fe3fd511-71c8-40cb-8798-3483b6918b3a",
       "name": "Switch"
     }
   ],
-  "pinData": {},
+  "pinData": {
+    "Search records": [
+      {
+        "json": {
+          "id": "rec2Ikiizbt8sqoLb",
+          "createdTime": "2026-07-10T01:57:27.000Z",
+          "fields": {
+            "Phone": "+639080183212",
+            "Category": "Warm Lead",
+            "Email": "ecsab@gmail.com",
+            "Status": "Contacted",
+            "Name": "Sza Sue",
+            "Date Received": "2026-07-10T01:57:26.015Z",
+            "Message": "Actually, I forgot to ask—do you have any properties that are near a good school district? That's really important for us.",
+            "Days Since Received": 10
+          }
+        },
+        "pairedItem": [
+          {
+            "item": 0
+          }
+        ]
+      },
+      {
+        "json": {
+          "id": "rec9d9fOUosvok7u4",
+          "createdTime": "2026-06-15T15:04:33.000Z",
+          "fields": {
+            "Phone": "(555) 872-3344",
+            "Category": "Warm Lead",
+            "Email": "sophie.martin@enterpriseltdb6b3.com",
+            "Status": "Contacted",
+            "Name": "Sophie Martin",
+            "Date Received": "2026-06-13T00:00:00.000Z",
+            "Follow-up 1 Sent": "2026-06-16T03:16:00.972Z",
+            "Message": "Interested in automating HR processes but still gathering requirements. Will reach out with more details soon.",
+            "Days Since Received": 38
+          }
+        },
+        "pairedItem": [
+          {
+            "item": 0
+          }
+        ]
+      },
+      {
+        "json": {
+          "id": "rec9z8ZQDOLl4XtZf",
+          "createdTime": "2026-06-15T15:04:33.000Z",
+          "fields": {
+            "Phone": "(555) 238-9002",
+            "Category": "Hot Lead",
+            "Email": "jenna.patel@email5ea6.com",
+            "Status": "Contacted",
+            "Name": "Jenna Patel",
+            "Date Received": "2026-06-09T00:00:00.000Z",
+            "Message": "Hi, I'm interested in learning how your automation tools can help streamline our onboarding process. Please send more info.",
+            "Days Since Received": 42
+          }
+        },
+        "pairedItem": [
+          {
+            "item": 0
+          }
+        ]
+      },
+      {
+        "json": {
+          "id": "recNv2epF0WgJZfyS",
+          "createdTime": "2026-06-15T15:04:33.000Z",
+          "fields": {
+            "Phone": "(555) 112-4839",
+            "Category": "Just Browsing",
+            "Email": "c.ramirez@techgenius7d08.com",
+            "Status": "Contacted",
+            "Name": "Carlos Ramirez",
+            "Date Received": "2026-06-15T00:00:00.000Z",
+            "Message": "Just browsing your website, curious if your automation platform integrates with Salesforce.",
+            "Days Since Received": 36
+          }
+        },
+        "pairedItem": [
+          {
+            "item": 0
+          }
+        ]
+      },
+      {
+        "json": {
+          "id": "recT5uVr8FuuZzqpa",
+          "createdTime": "2026-07-21T02:27:33.000Z",
+          "fields": {
+            "Last Message Date": "2026-07-14T00:00:00.000Z",
+            "Phone": "+639080183111",
+            "Category": "Hot Lead",
+            "Email": "eumisabueto@gmail.com",
+            "Status": "Contacted",
+            "Name": "Sab Sade",
+            "Date Received": "2026-07-14T00:00:00.000Z",
+            "Follow-up 1 Sent": "2026-07-21T03:16:25.247Z",
+            "Message": "LF a 3BR home in colorado. moving next month\n\n--- New Message ---\nLF a 1BR instead, moving next month",
+            "Days Since Received": 7
+          }
+        },
+        "pairedItem": [
+          {
+            "item": 0
+          }
+        ]
+      },
+      {
+        "json": {
+          "id": "recXZqksXXcXyHsDh",
+          "createdTime": "2026-07-10T02:19:24.000Z",
+          "fields": {
+            "Phone": "+639080183211",
+            "Category": "Hot Lead",
+            "Email": "esab@gmail.com",
+            "Status": "Contacted",
+            "Name": "Maddy Sue",
+            "Date Received": "2026-07-10T02:19:23.450Z",
+            "Message": "can you provide me a listing for homes near me? i want to move out soon",
+            "Days Since Received": 10
+          }
+        },
+        "pairedItem": [
+          {
+            "item": 0
+          }
+        ]
+      },
+      {
+        "json": {
+          "id": "recj4vEQCbDMAX4eH",
+          "createdTime": "2026-06-15T15:04:33.000Z",
+          "fields": {
+            "Phone": "(555) 444-9098",
+            "Category": "Hot Lead",
+            "Email": "d.kim@innovatechfd6f.com",
+            "Status": "Contacted",
+            "Name": "David Kim",
+            "Date Received": "2026-06-15T00:00:00.000Z",
+            "Message": "Heard about your automation app from a colleague. Can we set up a call to discuss how it fits our workflow?",
+            "Days Since Received": 36
+          }
+        },
+        "pairedItem": [
+          {
+            "item": 0
+          }
+        ]
+      }
+    ]
+  },
   "connections": {
     "Schedule Trigger": {
       "main": [
@@ -839,16 +983,6 @@
         ]
       ]
     },
-    "Update record": {
-      "main": [
-        []
-      ]
-    },
-    "Update record1": {
-      "main": [
-        []
-      ]
-    },
     "Switch": {
       "main": [
         [
@@ -864,23 +998,25 @@
             "type": "main",
             "index": 0
           }
-        ],
-        []
+        ]
       ]
     }
   },
-  "active": false,
+  "active": true,
   "settings": {
     "executionOrder": "v1",
     "binaryMode": "separate",
-    "availableInMCP": false
+    "availableInMCP": false,
+    "timeSavedMode": "fixed",
+    "errorWorkflow": "KxEm9WzICKfM355R",
+    "callerPolicy": "workflowsFromSameOwner"
   },
-  "versionId": "bc49198f-7bcc-472f-9c43-7b7b8a4dd27f",
+  "versionId": "312a7b3c-72ae-4b23-99da-dee523d1f9e0",
   "meta": {
     "templateCredsSetupCompleted": true,
-    "instanceId": "4f5adad9f37c528b1dd007dc3c89d5d56b1c0f931281ae3bf413de30b2448f3b"
+    "instanceId": "dd1c16a7b7eaf6bc0a10f19c6cc002cf373dce9c8bcfd61f62ad83332cb5ff23"
   },
   "nodeGroups": [],
-  "id": "Nj8Thk2Gr1mq1y9T",
+  "id": "xIecZimctFA1muRa",
   "tags": []
 }

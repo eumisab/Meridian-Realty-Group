@@ -282,7 +282,7 @@
     {
       "parameters": {
         "promptType": "define",
-        "text": "=Write a short, warm, professional email body for a real estate inquiry.\n\nYou are a senior real estate assistant writing on behalf of a CEO or marketing director.\nYour tone should be calm, polished, confident, and helpful.\n\nLead name: {{ $('Edit Fields').item.json['Full name'] }}\nConversation File: {{ $json.fields.Message }}\nCategory: {{ $('Basic LLM Chain').item.json.text }}\n\nInstructions:\n- Read the Conversation File carefully.\n- CONTEXT CHECK: If the Conversation File contains \"--- New Message ---\", this is a returning lead. You MUST respond with: \"Hello again, we’ve received your latest note. To ensure we can help you as effectively as possible, would you be open to a brief call? Please let me know what time works best for you.\"\n- CONTEXT CHECK: If there is no \"--- New Message ---\", this is a NEW lead. Respond normally.\n- NO REPETITION: Do not repeat any information the lead has already provided. Do not use the same opening or closing phrases if you have emailed this lead before. Ensure each response is unique and directly addresses the newest inquiry only.\n- REALISM GUARDRAIL: Never claim to have specific properties or inventory available. Instead, use phrases like \"I can look into our current inventory,\" \"I can research potential options that align with your criteria,\" or \"I will check with our team to see what might be a good fit.\"\n- Do not mention the category name in the email.\n- Do not repeat the subject line wording.\n- Do not start with “Thank you for reaching out.”\n- Do not include a subject line.\n- Do not include any booking link.\n- Do not mention redirection.\n- Do not invent details that are not in the message.\n- Keep it under 200 words.\n- End with a professional closing such as \"Best regards,\" or \"Warm regards,\".\n- Then sign as \"The Meridian Realty Team\".\n\nResponse by category (for NEW leads only):\n- Hot Lead: Acknowledge urgency naturally and suggest a brief call this week.\n- Warm Lead: Acknowledge interest, mention that I will look into available options, and offer to set up a brief call to discuss their specific needs in more detail.\n- Just Browsing: Acknowledge the inquiry and offer general help.\n\nReturn only the email body.",
+        "text": "=Write a short, warm, professional email body for a real estate inquiry.\nYou are a friendly, professional real estate agent responding directly to a lead on behalf of the Meridian Realty Team. Write in first-person plural — always use \"we\", \"our\", and \"us\", never \"I\" or \"my\".\n\nLead name: {{ $('Edit Fields').item.json['Full name'] }}\nConversation File: {{ $json.fields.Message }}\nCategory: {{ $('Basic LLM Chain').item.json.text }}\n\nInstructions:\n- Read the Conversation File carefully.\n- Use only the lead's first name in the greeting, not their full name.\n- CONTEXT CHECK: If the Conversation File contains \"--- New Message ---\", this is a returning lead. You MUST respond with a short, warm message acknowledging their latest note and suggesting a brief call. Use \"we\" throughout.\n- CONTEXT CHECK: If there is no \"--- New Message ---\", this is a NEW lead. Respond normally.\n- NO REPETITION: Do not repeat any information the lead has already provided. Do not use the same opening or closing phrases if you have emailed this lead before. Ensure each response is unique and directly addresses the newest inquiry only.\n- REALISM GUARDRAIL: Never claim to have specific properties available. Instead use phrases like \"we'll look into options that match your criteria\", \"we'll check what we have available\", or \"we can research potential fits for you.\"\n- Do not mention the category name in the email.\n- Do not repeat the subject line wording.\n- Do not start with \"Thank you for reaching out.\"\n- Do not include a subject line.\n- Do not include any booking link.\n- Do not mention redirection.\n- Do not invent details that are not in the message.\n- Keep it under 150 words.\n- End with a professional closing such as \"Best regards,\" or \"Warm regards,\" — vary it so it doesn't get repetitive.\n- Then sign as \"The Meridian Realty Team\".\n- Return the email body as simple HTML using <p> tags for paragraphs. No styling, no headers, just <p> tags.\n- Start with \"Hi [First Name]!\" — never use \"Dear\".\n\nResponse by category (for NEW leads only):\n- Hot Lead: Acknowledge urgency naturally and suggest a brief call this week.\n- Warm Lead: Acknowledge interest, mention that we will look into available options, and offer to set up a brief call to discuss their specific needs in more detail.\n- Just Browsing: Acknowledge the inquiry and offer general help with no pressure.\n\nReturn only the email body.",
         "batching": {}
       },
       "type": "@n8n/n8n-nodes-langchain.chainLlm",
@@ -320,7 +320,6 @@
       "parameters": {
         "sendTo": "={{ $('Edit Fields').item.json.Email }}",
         "subject": "=Thank you for reaching out, {{ $('Edit Fields').item.json['Full name'] }}.",
-        "emailType": "text",
         "message": "={{ $('Basic LLM Chain1').item.json.text }}",
         "options": {
           "appendAttribution": false
@@ -661,7 +660,8 @@
             "Category": "={{ $('Basic LLM Chain').item.json.text }}",
             "Name": "={{ $('Search records').item.json.fields.Name }}",
             "Status": "Has New Message",
-            "Phone": "={{ $('Search records').item.json.fields.Phone }}"
+            "Phone": "={{ $('Search records').item.json.fields.Phone }}",
+            "Last Message Date": "={{ $now.toISO() }}"
           },
           "matchingColumns": [
             "id"
@@ -820,15 +820,15 @@
               "removed": true
             },
             {
-              "id": "Last Status Update Date",
-              "displayName": "Last Status Update Date",
+              "id": "Last Message Date",
+              "displayName": "Last Message Date",
               "required": false,
               "defaultMatch": false,
               "canBeUsedToMatch": true,
               "display": true,
-              "type": "string",
-              "readOnly": true,
-              "removed": true
+              "type": "dateTime",
+              "readOnly": false,
+              "removed": false
             }
           ],
           "attemptToConvertTypes": false,
@@ -1290,7 +1290,7 @@
     "errorWorkflow": "KxEm9WzICKfM355R",
     "callerPolicy": "workflowsFromSameOwner"
   },
-  "versionId": "d35f5723-f2f8-47c6-b3e0-66a6f3b2469c",
+  "versionId": "6d115be7-ecbb-4f02-8e73-83894beabbae",
   "meta": {
     "templateCredsSetupCompleted": true,
     "instanceId": "dd1c16a7b7eaf6bc0a10f19c6cc002cf373dce9c8bcfd61f62ad83332cb5ff23"
